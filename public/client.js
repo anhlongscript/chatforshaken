@@ -1,58 +1,62 @@
-const socket = io();
+let socket;
+let username = localStorage.getItem("username");
 
-// Lấy tên user từ localStorage
-const username = localStorage.getItem("username") || "Ẩn danh";
+function login() {
+  const user = document.getElementById("username").value;
+  const key = document.getElementById("key").value;
 
-// Đăng nhập khi vào chat
-socket.emit("login", username);
+  fetch(`/login?username=${encodeURIComponent(user)}&key=${encodeURIComponent(key)}`)
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        localStorage.setItem("username", user);
+        window.location.href = "chat.html";
+      } else {
+        document.getElementById("error").innerText = data.message;
+      }
+    });
+}
 
-socket.on("loginSuccess", (name) => {
-  console.log("Đăng nhập thành công:", name);
-});
+if (window.location.pathname.endsWith("chat.html")) {
+  if (!username) window.location.href = "login.html";
 
-// Danh sách user
-socket.on("userList", (list) => {
-  const ul = document.getElementById("userList");
-  ul.innerHTML = "";
-  list.forEach(user => {
-    const li = document.createElement("li");
+  socket = io();
 
-    if (user === username) {
-      // Bảy sắc cầu vồng cho bạn
-      li.innerHTML = `<span class="rainbow">${user}</span>`;
+  socket.on("chat message", (msgData) => {
+    const item = document.createElement("div");
+    item.classList.add("message");
+
+    // màu tên
+    if (msgData.user === "đứa trẻ ngầu nhất xóm OwO") {
+      item.innerHTML = `<span class="rainbow">${msgData.user}</span>: ${msgData.msg}`;
+    } else if (msgData.user === "anh ki ki ma ma uWu") {
+      item.innerHTML = `<span style="color:red">${msgData.user}</span>: ${msgData.msg}`;
     } else {
-      // Đỏ cho bạn của bạn
-      li.style.color = "red";
-      li.textContent = user;
+      item.innerHTML = `<b>${msgData.user}</b>: ${msgData.msg}`;
     }
 
-    ul.appendChild(li);
+    document.getElementById("messages").appendChild(item);
+    item.scrollIntoView();
   });
-});
 
-// Nhận tin nhắn
-socket.on("chatMessage", (data) => {
-  const div = document.createElement("div");
-  div.innerHTML = `<b>${data.user}:</b> ${data.msg}`;
-  document.getElementById("messages").appendChild(div);
-});
+  document.getElementById("voice-btn").addEventListener("click", () => {
+    alert("🎤 Voice chat tạm demo, sẽ nâng cấp sau!");
+  });
 
-// Gửi tin nhắn
+  document.getElementById("settings-btn").addEventListener("click", () => {
+    const newName = prompt("Nhập tên mới:");
+    if (newName) {
+      localStorage.setItem("username", newName);
+      username = newName;
+      alert("✅ Đã đổi tên!");
+    }
+  });
+}
+
 function sendMessage() {
-  const input = document.getElementById("messageInput");
-  const msg = input.value.trim();
-  if (msg) {
-    socket.emit("chatMessage", msg);
+  const input = document.getElementById("msg");
+  if (input.value.trim() !== "") {
+    socket.emit("chat message", { user: username, msg: input.value });
     input.value = "";
   }
 }
-
-// Nút setting
-document.getElementById("settingsBtn").addEventListener("click", () => {
-  alert("⚙️ Mở cài đặt (demo)");
-});
-
-// Nút voice
-document.getElementById("voiceBtn").addEventListener("click", () => {
-  alert("🎤 Voice chat chưa hỗ trợ (demo)");
-});
