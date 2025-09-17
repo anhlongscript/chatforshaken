@@ -1,23 +1,41 @@
 <!DOCTYPE html>
-<html>
+<html lang="vi">
 <head>
-  <meta charset="UTF-8" />
-  <title>Chat + Voice Room</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <title>Forsaken Chat VIP</title>
+  <link rel="stylesheet" href="style.css">
 </head>
-<body>
-  <h1>Chat + Voice Room</h1>
-  <div id="chat">
-    <ul id="messages"></ul>
-    <form id="form">
-      <input id="input" autocomplete="off" placeholder="Nhập tin nhắn..." />
-      <button>Gửi</button>
-    </form>
+<body class="chat-page">
+  <div class="container">
+    <!-- Sidebar voice rooms -->
+    <aside class="sidebar">
+      <h3>Phòng Voice</h3>
+      <ul id="voice-rooms">
+        <li data-room="chill"><span class="icon">🔊</span> chill nhạc</li>
+        <li data-room="game"><span class="icon">🔊</span> game thủ</li>
+        <li data-room="hide"><span class="icon">🔊</span> ẩn nấp</li>
+      </ul>
+    </aside>
+
+    <!-- Chat main -->
+    <main class="chat-area">
+      <header>
+        <h2>Forsaken Chat</h2>
+        <button id="settings-btn">⚙</button>
+      </header>
+
+      <div id="messages" class="messages"></div>
+
+      <form id="chat-form">
+        <input id="msg" type="text" placeholder="Nhập tin nhắn..." autocomplete="off" required />
+        <button type="submit">Gửi</button>
+      </form>
+
+      <div id="voice-container"></div>
+    </main>
   </div>
-  <div id="audios"></div>
 
   <script src="/socket.io/socket.io.js"></script>
-  <script src="client.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
-
