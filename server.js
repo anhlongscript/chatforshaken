@@ -15,6 +15,11 @@ const validUsers = {
 // Middleware cho file tĩnh
 app.use(express.static(path.join(__dirname)));
 
+// Khi vào "/" thì trả về login.html
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "login.html"));
+});
+
 // Endpoint login
 app.get("/login", (req, res) => {
   const { username, key } = req.query;
