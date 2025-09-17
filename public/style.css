@@ -1,51 +1,123 @@
 body {
-  font-family: Arial, sans-serif;
   margin: 0;
-  padding: 0;
-  background: #111;
-  color: white;
+  font-family: Arial, sans-serif;
+  background: #f4f4f9;
+  color: #333;
 }
 
-.chat-container {
+/* Trang login */
+.login-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+.login-box {
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  text-align: center;
+}
+.login-box input {
+  display: block;
+  margin: 10px auto;
+  padding: 10px;
+  width: 80%;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+.login-box button {
+  background: #4CAF50;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.login-box button:hover {
+  background: #45a049;
+}
+.error { color: red; }
+
+/* Trang chat */
+.chat-page {
   display: flex;
   height: 100vh;
 }
-
 .sidebar {
   width: 200px;
-  background: #222;
-  padding: 10px;
+  background: #2c2f33;
+  color: white;
+  padding: 20px;
+}
+.sidebar h2 {
+  margin-top: 0;
+  font-size: 18px;
+}
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+}
+.sidebar li {
+  margin: 15px 0;
+  cursor: pointer;
+}
+.sidebar li:hover {
+  text-decoration: underline;
 }
 
-.chat-box {
+.chat-container {
   flex: 1;
   display: flex;
   flex-direction: column;
 }
-
-#messages {
+.chat-header {
+  padding: 15px;
+  background: #7289da;
+  color: white;
+}
+.messages {
+  flex: 1;
+  padding: 15px;
+  overflow-y: auto;
+  background: #f9f9fb;
+}
+.message {
+  margin-bottom: 10px;
+}
+.input-box {
+  display: flex;
+  padding: 10px;
+  background: #ddd;
+}
+.input-box input {
   flex: 1;
   padding: 10px;
-  overflow-y: auto;
-  border-bottom: 1px solid #333;
-}
-
-#messageInput {
-  width: 80%;
-  padding: 8px;
   border: none;
+  border-radius: 8px;
 }
-
-button {
-  padding: 8px 12px;
-  margin: 5px 0;
+.input-box button {
+  margin-left: 10px;
+  padding: 10px 20px;
   border: none;
+  background: #7289da;
+  color: white;
+  border-radius: 8px;
   cursor: pointer;
 }
+.input-box button:hover {
+  background: #5b6eae;
+}
 
+/* Rainbow name */
 .rainbow {
-  background-image: linear-gradient(to right, red, orange, yellow, green, blue, indigo, violet);
+  background: linear-gradient(to right, red, orange, yellow, green, cyan, blue, violet);
   -webkit-background-clip: text;
-  color: transparent;
+  -webkit-text-fill-color: transparent;
   font-weight: bold;
+  animation: rainbow 3s linear infinite;
+}
+@keyframes rainbow {
+  to { background-position: 200% center; }
 }
