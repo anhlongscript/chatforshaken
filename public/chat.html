@@ -17,6 +17,12 @@
     </div>
   </div>
 
+  <script>
+    // Nếu chưa login -> quay về login
+    if (!localStorage.getItem("username")) {
+      window.location.href = "login.html";
+    }
+  </script>
   <script src="/socket.io/socket.io.js"></script>
   <script src="client.js"></script>
 </body>
