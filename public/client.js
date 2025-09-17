@@ -1,89 +1,69 @@
 const socket = io();
-const user = JSON.parse(localStorage.getItem("chatUser"));
-if (!user) window.location.href = "login.html";
+const username = localStorage.getItem("username") || "Khách";
 
-socket.emit("login", user);
-
-// Hiển thị tin nhắn
-socket.on("message", (msg) => {
-  const div = document.createElement("div");
-  div.innerHTML = `<b>${msg.user}:</b> ${msg.message}`;
-  document.getElementById("messages").appendChild(div);
-});
-
-// Hiển thị lịch sử chat
-socket.on("chatHistory", (history) => {
-  const messages = document.getElementById("messages");
-  messages.innerHTML = "";
-  history.forEach(msg => {
-    const div = document.createElement("div");
-    div.innerHTML = `<b>${msg.user}:</b> ${msg.message}`;
-    messages.appendChild(div);
-  });
-});
-
-// Tin nhắn hệ thống
-socket.on("systemMessage", (text) => {
-  const div = document.createElement("div");
-  div.innerHTML = `<i style="color:orange;">${text}</i>`;
-  document.getElementById("messages").appendChild(div);
-});
-
-// Gửi tin nhắn
-document.getElementById("sendBtn").onclick = () => {
-  const msg = document.getElementById("messageInput").value;
-  if (msg.trim()) {
-    socket.emit("message", msg);
-    document.getElementById("messageInput").value = "";
+// Gửi tin nhắn text
+function sendMessage() {
+  const input = document.getElementById("msg");
+  if (input.value.trim() !== "") {
+    socket.emit("chat message", { user: username, msg: input.value, type: "text" });
+    input.value = "";
   }
-};
+}
 
-// Upload file
-document.getElementById("fileInput").addEventListener("change", (e) => {
-  const file = e.target.files[0];
+// Upload file (ảnh / video)
+document.getElementById("fileUpload")?.addEventListener("change", function() {
+  const file = this.files[0];
   if (!file) return;
-  const formData = new FormData();
-  formData.append("file", file);
 
-  fetch("/upload", { method: "POST", body: formData })
-    .then(res => res.json())
-    .then(data => socket.emit("file", data.file));
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const base64 = e.target.result;
+    let type = "file";
+    if (file.type.startsWith("image/")) type = "image";
+    else if (file.type.startsWith("video/")) type = "video";
+
+    socket.emit("chat message", { user: username, msg: base64, type });
+  };
+  reader.readAsDataURL(file);
 });
 
-// Cài đặt
-document.getElementById("settingsBtn").onclick = () => {
-  document.getElementById("settingsPanel").style.display = "block";
-};
+// Hàm render tin nhắn
+function renderMessage(msgData) {
+  const item = document.createElement("div");
+  item.classList.add("message");
 
-document.getElementById("saveSettingsBtn").onclick = () => {
-  const newName = document.getElementById("newName").value;
-  const oldKey = document.getElementById("oldKey").value;
-  const newKey = document.getElementById("newKey").value;
-
-  if (newName) {
-    socket.emit("changeName", newName);
-    user.name = newName;
+  let nameHtml = "";
+  if (msgData.user === "đứa trẻ ngầu nhất xóm OwO") {
+    nameHtml = `<span class="rainbow">${msgData.user}</span>`;
+  } else if (msgData.user === "anh ki ki ma ma uWu") {
+    nameHtml = `<span style="color:red">${msgData.user}</span>`;
+  } else {
+    nameHtml = `<b>${msgData.user}</b>`;
   }
-  if (oldKey && newKey) {
-    socket.emit("changeKey", { oldKey, newKey });
-    user.key = newKey;
+
+  let content = "";
+  if (msgData.type === "image") {
+    content = `<br><img src="${msgData.msg}" style="max-width:200px; border-radius:8px;">`;
+  } else if (msgData.type === "video") {
+    content = `<br><video src="${msgData.msg}" controls style="max-width:250px; border-radius:8px;"></video>`;
+  } else {
+    content = `: ${msgData.msg}`;
   }
-  localStorage.setItem("chatUser", JSON.stringify(user));
-  alert("Đã lưu thay đổi!");
-};
 
-// Admin
-document.getElementById("adminBtn").onclick = () => {
-  document.getElementById("adminPanel").style.display = "block";
-};
+  item.innerHTML = `${nameHtml} ${content}`;
+  document.getElementById("messages").appendChild(item);
+  item.scrollIntoView();
+}
 
-document.getElementById("muteBtn").onclick = () => {
-  const target = document.getElementById("muteUser").value;
-  const duration = document.getElementById("muteTime").value;
-  socket.emit("muteUser", { target, duration });
-};
+// Nhận lịch sử
+socket.on("chat history", (history) => {
+  const messagesDiv = document.getElementById("messages");
+  messagesDiv.innerHTML = "";
+  history.forEach(renderMessage);
+  messagesDiv.scrollTop = messagesDiv.scrollHeight;
+});
 
-document.getElementById("unmuteBtn").onclick = () => {
-  const target = document.getElementById("muteUser").value;
-  socket.emit("unmuteUser", target);
-};
+// Nhận tin nhắn mới
+socket.on("chat message", (msgData) => {
+  renderMessage(msgData);
+});
