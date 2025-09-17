@@ -6,23 +6,36 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
-// phục vụ file tĩnh (ví dụ index.html)
 app.use(express.static("public"));
 
-// xử lý socket.io
 io.on("connection", (socket) => {
-  console.log("Người dùng đã kết nối");
+  console.log("Người dùng kết nối:", socket.id);
 
-  socket.on("chat message", (msg) => {
-    io.emit("chat message", msg);
-  });
+  socket.on("join-room", (roomId) => {
+    const room = io.sockets.adapter.rooms.get(roomId);
 
-  socket.on("disconnect", () => {
-    console.log("Ngắt kết nối");
+    if (room && room.size >= 5) {
+      socket.emit("room-full");
+      return;
+    }
+
+    socket.join(roomId);
+    socket.to(roomId).emit("user-joined", socket.id);
+
+    socket.on("signal", (data) => {
+      io.to(data.to).emit("signal", { from: socket.id, signal: data.signal });
+    });
+
+    socket.on("chat message", (msg) => {
+      io.to(roomId).emit("chat message", { user: socket.id, text: msg });
+    });
+
+    socket.on("disconnect", () => {
+      socket.to(roomId).emit("user-left", socket.id);
+      console.log("Ngắt kết nối:", socket.id);
+    });
   });
 });
 
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
-  console.log(`Server chạy ở cổng ${PORT}`);
-});
+server.listen(PORT, () => console.log(`Server chạy ở cổng ${PORT}`));
