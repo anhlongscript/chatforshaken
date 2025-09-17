@@ -2,26 +2,17 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <title>ForsakenChatVIP</title>
+  <title>Đăng nhập - Forsaken Chat</title>
   <link rel="stylesheet" href="style.css">
 </head>
-<body>
-  <div class="chat-container">
-    <div class="sidebar">
-      <h3>Người dùng</h3>
-      <ul id="userList"></ul>
-      <button id="settingsBtn">⚙️ Cài đặt</button>
-      <button id="voiceBtn">🎤 Voice</button>
-    </div>
-
-    <div class="chat-box">
-      <div id="messages"></div>
-      <input id="messageInput" placeholder="Nhập tin nhắn...">
-      <button onclick="sendMessage()">Gửi</button>
-    </div>
+<body class="login-page">
+  <div class="login-box">
+    <h2>🔑 Đăng nhập</h2>
+    <input type="text" id="username" placeholder="Tên tài khoản">
+    <input type="password" id="key" placeholder="Key bí mật">
+    <button onclick="login()">Đăng nhập</button>
+    <p id="error" class="error"></p>
   </div>
-
-  <script src="/socket.io/socket.io.js"></script>
   <script src="client.js"></script>
 </body>
 </html>
