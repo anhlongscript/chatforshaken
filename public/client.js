@@ -1,10 +1,8 @@
 const socket = io();
-const peers = {};
-const roomId = "room1"; // có thể cho user nhập roomId riêng
 
-// --- Chat text ---
-const form = document.getElementById("form");
-const input = document.getElementById("input");
+// --- Chat ---
+const form = document.getElementById("chat-form");
+const input = document.getElementById("msg");
 const messages = document.getElementById("messages");
 
 form.addEventListener("submit", (e) => {
@@ -16,84 +14,87 @@ form.addEventListener("submit", (e) => {
 });
 
 socket.on("chat message", (msg) => {
-  const item = document.createElement("li");
-  item.textContent = `${msg.user}: ${msg.text}`;
+  const item = document.createElement("div");
+  item.textContent = msg;
   messages.appendChild(item);
+  messages.scrollTop = messages.scrollHeight;
 });
 
 // --- Voice ---
-navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
-  socket.emit("join-room", roomId);
+const peers = {};
+let localStream;
 
-  socket.on("room-full", () => {
-    alert("Phòng đã đầy (tối đa 5 người)!");
+document.querySelectorAll("#voice-rooms li").forEach(li => {
+  li.addEventListener("click", async () => {
+    const roomId = li.getAttribute("data-room");
+    await joinVoice(roomId);
+  });
+});
+
+async function joinVoice(roomId) {
+  localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  socket.emit("join-voice", roomId);
+
+  socket.on("user-joined", async (id) => {
+    const pc = createPeerConnection(id);
+    localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
+    const offer = await pc.createOffer();
+    await pc.setLocalDescription(offer);
+    socket.emit("offer", { target: id, sdp: offer });
   });
 
-  socket.on("user-joined", (id) => {
-    createPeerConnection(id, stream, true);
+  socket.on("offer", async (data) => {
+    const pc = createPeerConnection(data.from);
+    localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
+    await pc.setRemoteDescription(new RTCSessionDescription(data.sdp));
+    const answer = await pc.createAnswer();
+    await pc.setLocalDescription(answer);
+    socket.emit("answer", { target: data.from, sdp: answer });
   });
 
-  socket.on("signal", async (data) => {
-    let pc = peers[data.from];
-    if (!pc) {
-      pc = createPeerConnection(data.from, stream, false);
-    }
+  socket.on("answer", async (data) => {
+    await peers[data.from].setRemoteDescription(new RTCSessionDescription(data.sdp));
+  });
 
-    if (data.signal.sdp) {
-      await pc.setRemoteDescription(new RTCSessionDescription(data.signal.sdp));
-      if (pc.remoteDescription.type === "offer") {
-        const answer = await pc.createAnswer();
-        await pc.setLocalDescription(answer);
-        socket.emit("signal", { to: data.from, signal: { sdp: pc.localDescription } });
-      }
-    }
-
-    if (data.signal.candidate) {
-      try {
-        await pc.addIceCandidate(new RTCIceCandidate(data.signal.candidate));
-      } catch (e) {
-        console.error("Lỗi addIceCandidate", e);
-      }
-    }
+  socket.on("candidate", (data) => {
+    peers[data.from].addIceCandidate(new RTCIceCandidate(data.candidate));
   });
 
   socket.on("user-left", (id) => {
     if (peers[id]) {
       peers[id].close();
       delete peers[id];
+      const audio = document.getElementById(id);
+      if (audio) audio.remove();
     }
-    const audioEl = document.getElementById("audio-" + id);
-    if (audioEl) audioEl.remove();
   });
+}
 
-  function createPeerConnection(id, stream, isOfferer) {
-    const pc = new RTCPeerConnection();
-    peers[id] = pc;
+function createPeerConnection(id) {
+  const pc = new RTCPeerConnection();
+  peers[id] = pc;
 
-    stream.getTracks().forEach(track => pc.addTrack(track, stream));
-
-    pc.ontrack = (e) => {
-      let audio = document.getElementById("audio-" + id);
-      if (!audio) {
-        audio = document.createElement("audio");
-        audio.id = "audio-" + id;
-        audio.autoplay = true;
-        audio.srcObject = e.streams[0];
-        document.getElementById("audios").appendChild(audio);
-      }
-    };
-
-    pc.onicecandidate = (e) => {
-      if (e.candidate) {
-        socket.emit("signal", { to: id, signal: { candidate: e.candidate } });
-      }
-    };
-
-    if (isOfferer) {
-      pc.createOffer().then(o => pc.setLocalDescription(o)).then(() => {
-        socket.emit("signal", { to: id, signal: { sdp: pc.localDescription } });
-      });
+  pc.onicecandidate = (event) => {
+    if (event.candidate) {
+      socket.emit("candidate", { target: id, candidate: event.candidate });
     }
-    return pc;
-  }
+  };
+
+  pc.ontrack = (event) => {
+    let audio = document.getElementById(id);
+    if (!audio) {
+      audio = document.createElement("audio");
+      audio.id = id;
+      audio.autoplay = true;
+      document.getElementById("voice-container").appendChild(audio);
+    }
+    audio.srcObject = event.streams[0];
+  };
+
+  return pc;
+}
+
+// --- Settings ---
+document.getElementById("settings-btn").addEventListener("click", () => {
+  alert("Tùy chỉnh tên (sẽ thêm sau).");
 });
