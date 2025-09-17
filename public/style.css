@@ -1,3 +1,4 @@
+/* BODY */
 body {
   font-family: Arial, sans-serif;
   background: #1e1e1e;
@@ -9,15 +10,18 @@ body {
   margin: 0;
 }
 
+/* LOGIN & CHAT BOX */
 .login-box, .chat-box {
   background: #2b2b2b;
   padding: 20px;
   border-radius: 10px;
-  width: 400px;
+  width: 90%;
+  max-width: 400px; /* desktop tối đa */
   text-align: center;
   box-shadow: 0 4px 10px rgba(0,0,0,0.5);
 }
 
+/* INPUT CHUNG */
 .login-box input, .input-box input {
   width: 70%;
   padding: 8px;
@@ -26,8 +30,10 @@ body {
   border-radius: 5px;
   background: #1a1a1a;
   color: white;
+  font-size: 14px;
 }
 
+/* BUTTON */
 button {
   padding: 8px 12px;
   margin-left: 5px;
@@ -36,14 +42,19 @@ button {
   cursor: pointer;
   background: #4caf50;
   color: white;
+  font-size: 14px;
 }
 
+/* INPUT BOX */
 .input-box {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 5px;
+  flex-wrap: wrap;
 }
 
+/* MESSAGES */
 .messages {
   height: 350px;
   overflow-y: auto;
@@ -60,13 +71,15 @@ button {
   word-wrap: break-word;
 }
 
+/* IMAGE / VIDEO */
 .messages img, .messages video {
   margin-top: 5px;
-  max-width: 250px;
+  max-width: 100%;
   border-radius: 10px;
   display: block;
 }
 
+/* TÊN ĐẶC BIỆT */
 .rainbow {
   font-weight: bold;
   background: linear-gradient(90deg, red, orange, yellow, green, cyan, blue, violet);
@@ -77,4 +90,41 @@ button {
 .red-name {
   color: red;
   font-weight: bold;
+}
+
+/* SCROLLBAR (tuỳ chỉnh) */
+.messages::-webkit-scrollbar {
+  width: 6px;
+}
+
+.messages::-webkit-scrollbar-thumb {
+  background: #555;
+  border-radius: 3px;
+}
+
+.messages::-webkit-scrollbar-track {
+  background: #1a1a1a;
+}
+
+/* MEDIA QUERY CHO MOBILE */
+@media (max-width: 480px) {
+  .login-box, .chat-box {
+    width: 95%;
+    padding: 15px;
+  }
+
+  .messages {
+    height: 300px;
+    padding: 8px;
+  }
+
+  .input-box input {
+    width: 60%;
+    margin-bottom: 5px;
+  }
+
+  button {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
 }
