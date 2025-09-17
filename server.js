@@ -4,36 +4,25 @@ const http = require("http").createServer(app);
 const io = require("socket.io")(http);
 const path = require("path");
 
-const PORT = process.env.PORT || 3000;
-
-// Users hợp lệ
-const validUsers = {
-  "đứa trẻ ngầu nhất xóm OwO": "adminvipdeptrainhatthegioi",
-  "anh ki ki ma ma uWu": "phukikimama"
-};
-
 app.use(express.static(path.join(__dirname, "public")));
 
-// Route mặc định → login.html
+let messages = [];
+
+// Điều hướng về login
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "login.html"));
+  res.sendFile(path.join(__dirname, "public/login.html"));
 });
 
-// API login
-app.get("/login", (req, res) => {
-  const { username, key } = req.query;
-  if (validUsers[username] && validUsers[username] === key) {
-    res.send({ success: true });
-  } else {
-    res.send({ success: false, message: "Sai tài khoản hoặc key" });
-  }
-});
-
-// Socket.io
 io.on("connection", (socket) => {
   console.log("Một user đã kết nối");
 
+  // Gửi lịch sử chat cho client mới
+  socket.emit("chat history", messages);
+
+  // Nhận tin nhắn mới
   socket.on("chat message", (msgData) => {
+    messages.push(msgData);
+    if (messages.length > 100) messages.shift(); // chỉ giữ 100 tin nhắn gần nhất
     io.emit("chat message", msgData);
   });
 
@@ -42,6 +31,6 @@ io.on("connection", (socket) => {
   });
 });
 
-http.listen(PORT, () => {
-  console.log(`Server chạy tại http://localhost:${PORT}`);
+http.listen(3000, () => {
+  console.log("Server chạy tại http://localhost:3000");
 });
