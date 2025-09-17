@@ -2,33 +2,25 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <title>Đăng nhập Chat</title>
+  <title>Login - ForsakenChatVIP</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="login-container">
-    <h2>Đăng nhập</h2>
-    <input type="text" id="username" placeholder="Tên tài khoản">
-    <input type="password" id="key" placeholder="Key">
-    <button id="loginBtn">Đăng nhập</button>
-    <p id="error" class="error"></p>
+    <h2>Đăng nhập chat</h2>
+    <input type="text" id="username" placeholder="Nhập tên của bạn">
+    <button onclick="login()">Vào Chat</button>
   </div>
-
   <script>
-    document.getElementById("loginBtn").addEventListener("click", async () => {
+    function login() {
       const username = document.getElementById("username").value.trim();
-      const key = document.getElementById("key").value.trim();
-
-      const res = await fetch(`/login?username=${encodeURIComponent(username)}&key=${encodeURIComponent(key)}`);
-      const data = await res.json();
-
-      if (data.success) {
+      if (username) {
         localStorage.setItem("username", username);
         window.location.href = "chat.html";
       } else {
-        document.getElementById("error").textContent = data.message;
+        alert("Vui lòng nhập tên!");
       }
-    });
+    }
   </script>
 </body>
 </html>
