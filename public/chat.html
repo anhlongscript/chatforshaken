@@ -2,31 +2,35 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <title>Forsaken Chat</title>
+  <title>Chat App</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="sidebar">
-    <h3>Phòng Voice</h3>
-    <ul>
-      <li>chill nhạc 🔊</li>
-      <li>voice 1 🎤</li>
-      <li>voice 2 🎧</li>
-    </ul>
+    <button id="voiceBtn">🎤 Voice</button>
+    <div id="voicePanel" class="hidden">
+      <p>Voice Room (demo)</p>
+    </div>
   </div>
 
   <div class="chat-container">
-    <div class="chat-header">
-      <h2>Forsaken Chat</h2>
-      <div class="settings">⚙️</div>
+    <div class="header">
+      <h2>Chat Room</h2>
+      <button id="settingsBtn">⚙</button>
     </div>
-
-    <div id="messages" class="messages"></div>
-    
-    <form id="chat-form">
-      <input id="msg" type="text" placeholder="Nhập tin nhắn..." autocomplete="off">
+    <ul id="messages"></ul>
+    <form id="form" action="">
+      <input id="input" autocomplete="off" placeholder="Nhập tin nhắn..."/>
       <button>Gửi</button>
     </form>
+  </div>
+
+  <!-- Popup cài đặt -->
+  <div id="settingsPopup" class="popup hidden">
+    <h3>Cài đặt</h3>
+    <label for="displayName">Đổi tên hiển thị:</label>
+    <input type="text" id="displayName" placeholder="Nhập tên mới...">
+    <button id="saveSettings">Lưu</button>
   </div>
 
   <script src="/socket.io/socket.io.js"></script>
