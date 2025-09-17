@@ -1,41 +1,45 @@
 const express = require("express");
-const http = require("http");
-const { Server } = require("socket.io");
-
 const app = express();
-const server = http.createServer(app);
-const io = new Server(server);
+const http = require("http").createServer(app);
+const io = require("socket.io")(http);
+const path = require("path");
 
-app.use(express.static("public"));
+const PORT = process.env.PORT || 3000;
 
+app.use(express.static(path.join(__dirname, "public")));
+app.use(express.urlencoded({ extended: true }));
+
+// Fake database users
+const users = {
+  "đứa trẻ ngầu nhất xóm OwO": "adminvipdeptrainhatthegioi", // admin
+  "anh ki ki ma ma uWu": "phukikimama" // bạn
+};
+
+// Route xử lý login
+app.post("/login", (req, res) => {
+  const { username, key } = req.body;
+  if (users[username] && users[username] === key) {
+    return res.redirect(`/chat.html?username=${encodeURIComponent(username)}`);
+  }
+  res.send("<h2>Sai tài khoản hoặc key! <a href='/login.html'>Thử lại</a></h2>");
+});
+
+// Route mặc định → login
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "public/login.html"));
+});
+
+// Socket.io
 io.on("connection", (socket) => {
-  console.log("Người dùng kết nối:", socket.id);
+  console.log("Người dùng mới kết nối");
 
-  socket.on("join-room", (roomId) => {
-    const room = io.sockets.adapter.rooms.get(roomId);
+  socket.on("chatMessage", (msg) => {
+    io.emit("chatMessage", msg);
+  });
 
-    if (room && room.size >= 5) {
-      socket.emit("room-full");
-      return;
-    }
-
-    socket.join(roomId);
-    socket.to(roomId).emit("user-joined", socket.id);
-
-    socket.on("signal", (data) => {
-      io.to(data.to).emit("signal", { from: socket.id, signal: data.signal });
-    });
-
-    socket.on("chat message", (msg) => {
-      io.to(roomId).emit("chat message", { user: socket.id, text: msg });
-    });
-
-    socket.on("disconnect", () => {
-      socket.to(roomId).emit("user-left", socket.id);
-      console.log("Ngắt kết nối:", socket.id);
-    });
+  socket.on("disconnect", () => {
+    console.log("Người dùng ngắt kết nối");
   });
 });
 
-const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => console.log(`Server chạy ở cổng ${PORT}`));
+http.listen(PORT, () => console.log(`Server chạy tại http://localhost:${PORT}`));
