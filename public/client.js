@@ -1,127 +1,89 @@
 const socket = io();
-let username = localStorage.getItem("username");
-let key = localStorage.getItem("key");
+const user = JSON.parse(localStorage.getItem("chatUser"));
+if (!user) window.location.href = "login.html";
 
-if (!username || !key) {
-  window.location.href = "/";
-}
+socket.emit("login", user);
 
-// Nhận lịch sử tin nhắn
-socket.on("chatHistory", (msgs) => {
-  msgs.forEach(addMessage);
-});
-
-// Nhận tin nhắn mới
-socket.on("chatMessage", (msg) => {
-  addMessage(msg);
-});
-
-// Nếu bị mute
-socket.on("muted", (data) => {
-  const until = new Date(data.until).toLocaleString();
-  alert(`Bạn đang bị mute đến: ${until}`);
-});
-
-function sendMessage() {
-  const text = document.getElementById("msgInput").value.trim();
-  if (!text) return;
-  socket.emit("chatMessage", { user: username, text, type: "text" });
-  document.getElementById("msgInput").value = "";
-}
-
-function addMessage(msg) {
+// Hiển thị tin nhắn
+socket.on("message", (msg) => {
   const div = document.createElement("div");
+  div.innerHTML = `<b>${msg.user}:</b> ${msg.message}`;
+  document.getElementById("messages").appendChild(div);
+});
 
-  // Đổi màu tên
-  let color = "black";
-  if (msg.user === "đứa trẻ ngầu nhất xóm OwO") color = "rainbow";
-  if (msg.user === "anh ki ki ma ma uWu") color = "red";
+// Hiển thị lịch sử chat
+socket.on("chatHistory", (history) => {
+  const messages = document.getElementById("messages");
+  messages.innerHTML = "";
+  history.forEach(msg => {
+    const div = document.createElement("div");
+    div.innerHTML = `<b>${msg.user}:</b> ${msg.message}`;
+    messages.appendChild(div);
+  });
+});
 
-  div.innerHTML = `<b style="color:${color};">${msg.user}:</b> `;
+// Tin nhắn hệ thống
+socket.on("systemMessage", (text) => {
+  const div = document.createElement("div");
+  div.innerHTML = `<i style="color:orange;">${text}</i>`;
+  document.getElementById("messages").appendChild(div);
+});
 
-  if (msg.type === "file") {
-    if (msg.url.match(/\.(mp4|webm|ogg)$/)) {
-      div.innerHTML += `<video src="${msg.url}" controls width="200"></video>`;
-    } else {
-      div.innerHTML += `<img src="${msg.url}" width="200">`;
-    }
-  } else {
-    div.innerHTML += msg.text;
+// Gửi tin nhắn
+document.getElementById("sendBtn").onclick = () => {
+  const msg = document.getElementById("messageInput").value;
+  if (msg.trim()) {
+    socket.emit("message", msg);
+    document.getElementById("messageInput").value = "";
   }
-
-  document.getElementById("chatBox").appendChild(div);
-}
+};
 
 // Upload file
-document.getElementById("fileInput").addEventListener("change", async (e) => {
+document.getElementById("fileInput").addEventListener("change", (e) => {
   const file = e.target.files[0];
+  if (!file) return;
   const formData = new FormData();
   formData.append("file", file);
 
-  const res = await fetch("/upload", { method: "POST", body: formData });
-  const data = await res.json();
-  socket.emit("chatMessage", { user: username, type: "file", url: data.url });
+  fetch("/upload", { method: "POST", body: formData })
+    .then(res => res.json())
+    .then(data => socket.emit("file", data.file));
 });
 
-// ---------------- Cài đặt ----------------
+// Cài đặt
 document.getElementById("settingsBtn").onclick = () => {
-  document.getElementById("settingsPopup").classList.remove("hidden");
+  document.getElementById("settingsPanel").style.display = "block";
 };
-function closeSettings() {
-  document.getElementById("settingsPopup").classList.add("hidden");
-}
 
-function saveSettings() {
-  const newName = document.getElementById("newName").value.trim();
-  const oldKey = document.getElementById("oldKey").value.trim();
-  const newKey = document.getElementById("newKey").value.trim();
+document.getElementById("saveSettingsBtn").onclick = () => {
+  const newName = document.getElementById("newName").value;
+  const oldKey = document.getElementById("oldKey").value;
+  const newKey = document.getElementById("newKey").value;
 
-  if (newName) username = newName;
-  if (oldKey === key && newKey) key = newKey;
+  if (newName) {
+    socket.emit("changeName", newName);
+    user.name = newName;
+  }
+  if (oldKey && newKey) {
+    socket.emit("changeKey", { oldKey, newKey });
+    user.key = newKey;
+  }
+  localStorage.setItem("chatUser", JSON.stringify(user));
+  alert("Đã lưu thay đổi!");
+};
 
-  localStorage.setItem("username", username);
-  localStorage.setItem("key", key);
-  alert("Đã lưu cài đặt! Đăng nhập lần sau nhớ dùng tên/key mới.");
-  closeSettings();
-}
+// Admin
+document.getElementById("adminBtn").onclick = () => {
+  document.getElementById("adminPanel").style.display = "block";
+};
 
-// ---------------- Admin ----------------
-if (username === "đứa trẻ ngầu nhất xóm OwO") {
-  const btn = document.createElement("button");
-  btn.textContent = "Admin Panel";
-  btn.onclick = () => document.getElementById("adminPanel").classList.remove("hidden");
-  document.body.appendChild(btn);
-}
+document.getElementById("muteBtn").onclick = () => {
+  const target = document.getElementById("muteUser").value;
+  const duration = document.getElementById("muteTime").value;
+  socket.emit("muteUser", { target, duration });
+};
 
-document.getElementById("muteDuration").addEventListener("change", (e) => {
-  document.getElementById("customMute").style.display = e.target.value === "custom" ? "inline-block" : "none";
-});
-
-async function muteUser() {
-  const target = document.getElementById("targetUser").value.trim();
-  let duration = document.getElementById("muteDuration").value;
-  if (duration === "custom") duration = parseInt(document.getElementById("customMute").value || "0");
-
-  const res = await fetch("/mute-user", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ admin: username, target, duration })
-  });
-  const data = await res.json();
-  alert(data.message);
-}
-
-async function unmuteUser() {
-  const target = document.getElementById("targetUser").value.trim();
-  const res = await fetch("/unmute-user", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ admin: username, target })
-  });
-  const data = await res.json();
-  alert(data.message);
-}
-
-function closeAdmin() {
-  document.getElementById("adminPanel").classList.add("hidden");
-}
+document.getElementById("unmuteBtn").onclick = () => {
+  const target = document.getElementById("muteUser").value;
+  socket.emit("unmuteUser", target);
+};
