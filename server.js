@@ -1,48 +1,45 @@
 const express = require("express");
-const app = express();
-const http = require("http").createServer(app);
-const io = require("socket.io")(http);
+const http = require("http");
 const path = require("path");
+const { Server } = require("socket.io");
 
-const PORT = process.env.PORT || 3000;
+const app = express();
+const server = http.createServer(app);
+const io = new Server(server);
 
-// Users hợp lệ
-const validUsers = {
-  "đứa trẻ ngầu nhất xóm OwO": "adminvipdeptrainhatthegioi",
-  "anh ki ki ma ma uWu": "phukikimama"
-};
+app.use(express.static(path.join(__dirname, "public")));
 
-// Middleware cho file tĩnh
-app.use(express.static(path.join(__dirname)));
-
-// Khi vào "/" thì trả về login.html
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "login.html"));
+  res.sendFile(path.join(__dirname, "public", "login.html"));
 });
 
-// Endpoint login
-app.get("/login", (req, res) => {
-  const { username, key } = req.query;
-  if (validUsers[username] && validUsers[username] === key) {
-    res.send({ success: true });
-  } else {
-    res.send({ success: false, message: "Sai tài khoản hoặc key" });
-  }
-});
+// Danh sách user
+let users = {};
 
-// Socket.io
+// Socket
 io.on("connection", (socket) => {
   console.log("Một user đã kết nối");
 
-  socket.on("chat message", (msgData) => {
-    io.emit("chat message", msgData);
+  socket.on("login", (username) => {
+    users[socket.id] = username;
+    socket.emit("loginSuccess", username);
+    io.emit("userList", Object.values(users));
+    console.log(`${username} đã đăng nhập`);
+  });
+
+  socket.on("chatMessage", (msg) => {
+    const user = users[socket.id] || "Ẩn danh";
+    io.emit("chatMessage", { user, msg });
   });
 
   socket.on("disconnect", () => {
     console.log("User đã thoát");
+    delete users[socket.id];
+    io.emit("userList", Object.values(users));
   });
 });
 
-http.listen(PORT, () => {
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
   console.log(`Server chạy tại http://localhost:${PORT}`);
 });
