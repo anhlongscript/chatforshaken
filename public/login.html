@@ -8,18 +8,32 @@
 <body>
   <div class="login-box">
     <h2>Đăng nhập chat</h2>
-    <input id="username" placeholder="Nhập tên của bạn">
+    <input id="username" placeholder="Tên tài khoản">
+    <input id="key" type="password" placeholder="Key được admin cấp">
     <button onclick="login()">Vào chat</button>
   </div>
 
   <script>
+    // Danh sách account hardcode (check ở client cho đơn giản)
+    const accounts = {
+      "đứa trẻ ngầu nhất xóm OwO": "adminvipdeptrainhatthegioi",
+      "anh ki ki ma ma uWu": "phukikimama"
+    };
+
     function login() {
       const name = document.getElementById("username").value.trim();
-      if (name) {
+      const key = document.getElementById("key").value.trim();
+
+      if (!name || !key) {
+        alert("Vui lòng nhập đủ Tên và Key!");
+        return;
+      }
+
+      if (accounts[name] && accounts[name] === key) {
         localStorage.setItem("username", name);
         window.location.href = "chat.html";
       } else {
-        alert("Nhập tên trước khi vào!");
+        alert("Sai Tên hoặc Key! Không được phép vào.");
       }
     }
   </script>
