@@ -2,17 +2,33 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <title>Đăng nhập | Forsaken Chat</title>
+  <title>Đăng nhập Chat</title>
   <link rel="stylesheet" href="style.css">
 </head>
-<body class="login-page">
-  <div class="login-box">
+<body>
+  <div class="login-container">
     <h2>Đăng nhập</h2>
-    <form action="/login" method="POST">
-      <input type="text" name="username" placeholder="Tên tài khoản" required>
-      <input type="password" name="key" placeholder="Key bí mật" required>
-      <button type="submit">Vào Chat</button>
-    </form>
+    <input type="text" id="username" placeholder="Tên tài khoản">
+    <input type="password" id="key" placeholder="Key">
+    <button id="loginBtn">Đăng nhập</button>
+    <p id="error" class="error"></p>
   </div>
+
+  <script>
+    document.getElementById("loginBtn").addEventListener("click", async () => {
+      const username = document.getElementById("username").value.trim();
+      const key = document.getElementById("key").value.trim();
+
+      const res = await fetch(`/login?username=${encodeURIComponent(username)}&key=${encodeURIComponent(key)}`);
+      const data = await res.json();
+
+      if (data.success) {
+        localStorage.setItem("username", username);
+        window.location.href = "chat.html";
+      } else {
+        document.getElementById("error").textContent = data.message;
+      }
+    });
+  </script>
 </body>
 </html>
