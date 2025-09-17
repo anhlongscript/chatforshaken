@@ -1,1 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Chat + Voice Room</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h1>Chat + Voice Room</h1>
+  <div id="chat">
+    <ul id="messages"></ul>
+    <form id="form">
+      <input id="input" autocomplete="off" placeholder="Nhập tin nhắn..." />
+      <button>Gửi</button>
+    </form>
+  </div>
+  <div id="audios"></div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="client.js"></script>
+</body>
+</html>
 
