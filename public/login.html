@@ -2,24 +2,24 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <title>Login</title>
+  <title>Đăng nhập Forsaken Chat</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="login-container">
-    <h2>Đăng nhập</h2>
-    <input id="username" placeholder="Tên tài khoản">
-    <input id="key" placeholder="Key" type="password">
+  <div class="login-box">
+    <h1>Forsaken Chat - Đăng nhập</h1>
+    <input type="text" id="username" placeholder="Tên..."><br>
+    <input type="password" id="key" placeholder="Key..."><br>
     <button onclick="login()">Đăng nhập</button>
   </div>
 
   <script>
-    async function login() {
-      const username = document.getElementById("username").value.trim();
+    function login() {
+      const name = document.getElementById("username").value.trim();
       const key = document.getElementById("key").value.trim();
-      localStorage.setItem("username", username);
-      localStorage.setItem("key", key);
-      window.location.href = "/chat";
+      if (!name || !key) return alert("Điền đủ thông tin!");
+      localStorage.setItem("chatUser", JSON.stringify({ name, key }));
+      window.location.href = "chat.html";
     }
   </script>
 </body>
