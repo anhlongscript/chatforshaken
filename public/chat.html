@@ -2,49 +2,19 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <title>Forsaken Chat</title>
+  <title>Chat Room</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="chat-container">
-    <h1>Forsaken Chat</h1>
-    <div id="messages"></div>
-    <input type="text" id="messageInput" placeholder="Nhập tin nhắn...">
-    <button id="sendBtn">Gửi</button>
-    <input type="file" id="fileInput">
-    <button id="settingsBtn">⚙️ Cài đặt</button>
-    <button id="adminBtn">Admin Panel</button>
-  </div>
+  <div class="chat-box">
+    <div id="messages" class="messages"></div>
 
-  <!-- Panel Cài đặt -->
-  <div class="settings-panel" id="settingsPanel" style="display:none;">
-    <h2>Cài đặt</h2>
-    <input type="text" id="newName" placeholder="Tên mới"><br>
-    <input type="password" id="oldKey" placeholder="Key cũ">
-    <input type="password" id="newKey" placeholder="Key mới"><br>
-    <button id="saveSettingsBtn">Lưu</button>
-    <span class="note">Lưu ý: Sau khi đổi tên/key thì lần đăng nhập sau phải dùng cái mới</span><br>
-    <button onclick="document.getElementById('settingsPanel').style.display='none'">Đóng</button>
-  </div>
-
-  <!-- Panel Admin -->
-  <div class="admin-panel" id="adminPanel" style="display:none;">
-    <h2>Quản trị (Admin)</h2>
-    <input type="text" id="muteUser" placeholder="Tên user cần mute">
-    <select id="muteTime">
-      <option value="1">1 giây</option>
-      <option value="10">10 giây</option>
-      <option value="60">1 phút</option>
-      <option value="3600">1 giờ</option>
-      <option value="86400">1 ngày</option>
-      <option value="604800">1 tuần</option>
-      <option value="2592000">1 tháng</option>
-      <option value="31536000">1 năm</option>
-    </select>
-    <br>
-    <button id="muteBtn">Mute</button>
-    <button id="unmuteBtn">Unmute</button>
-    <button onclick="document.getElementById('adminPanel').style.display='none'">Đóng</button>
+    <div class="input-box">
+      <input id="msg" autocomplete="off" placeholder="Nhập tin nhắn...">
+      <input type="file" id="fileUpload" hidden>
+      <button onclick="document.getElementById('fileUpload').click()">📎</button>
+      <button onclick="sendMessage()">Gửi</button>
+    </div>
   </div>
 
   <script src="/socket.io/socket.io.js"></script>
