@@ -2,25 +2,17 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <title>Forsaken Chat</title>
+  <title>Chat Room</title>
   <link rel="stylesheet" href="style.css">
 </head>
-<body class="chat-page">
-  <div class="sidebar">
-    <h2>⚡ Forsaken</h2>
-    <ul>
-      <li id="voice-btn">🎤 Voice Room</li>
-      <li id="settings-btn">⚙️ Cài đặt</li>
-    </ul>
-  </div>
-
-  <div class="chat-container">
-    <div class="chat-header">
-      <h2>💬 Chat Room</h2>
-    </div>
+<body>
+  <div class="chat-box">
     <div id="messages" class="messages"></div>
+
     <div class="input-box">
       <input id="msg" autocomplete="off" placeholder="Nhập tin nhắn...">
+      <input type="file" id="fileUpload" hidden>
+      <button onclick="document.getElementById('fileUpload').click()">📎</button>
       <button onclick="sendMessage()">Gửi</button>
     </div>
   </div>
