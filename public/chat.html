@@ -2,39 +2,36 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <title>Chat</title>
+  <title>Forsaken Chat</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="topbar">
-    <h2>Forsaken Chat</h2>
+  <div class="chat-container">
+    <h1>Forsaken Chat</h1>
+    <div id="messages"></div>
+    <input type="text" id="messageInput" placeholder="Nhập tin nhắn...">
+    <button id="sendBtn">Gửi</button>
+    <input type="file" id="fileInput">
     <button id="settingsBtn">⚙️ Cài đặt</button>
+    <button id="adminBtn">Admin Panel</button>
   </div>
 
-  <div id="chatBox"></div>
-
-  <input id="msgInput" placeholder="Nhập tin nhắn...">
-  <button onclick="sendMessage()">Gửi</button>
-  <input type="file" id="fileInput">
-
-  <!-- Popup cài đặt -->
-  <div id="settingsPopup" class="popup hidden">
-    <h3>Cài đặt</h3>
-    <p>Đổi tên</p>
-    <input id="newName" placeholder="Tên mới">
-    <p>Đổi key</p>
-    <input id="oldKey" placeholder="Key cũ">
-    <input id="newKey" placeholder="Key mới">
-    <button onclick="saveSettings()">Lưu</button>
-    <p style="font-size:12px;color:red">Lưu ý: Sau khi đổi tên/key thì lần đăng nhập sau phải dùng cái mới!</p>
-    <button onclick="closeSettings()">Đóng</button>
+  <!-- Panel Cài đặt -->
+  <div class="settings-panel" id="settingsPanel" style="display:none;">
+    <h2>Cài đặt</h2>
+    <input type="text" id="newName" placeholder="Tên mới"><br>
+    <input type="password" id="oldKey" placeholder="Key cũ">
+    <input type="password" id="newKey" placeholder="Key mới"><br>
+    <button id="saveSettingsBtn">Lưu</button>
+    <span class="note">Lưu ý: Sau khi đổi tên/key thì lần đăng nhập sau phải dùng cái mới</span><br>
+    <button onclick="document.getElementById('settingsPanel').style.display='none'">Đóng</button>
   </div>
 
-  <!-- Popup admin -->
-  <div id="adminPanel" class="popup hidden">
-    <h3>Quản trị (Admin)</h3>
-    <input id="targetUser" placeholder="Tên user cần mute">
-    <select id="muteDuration">
+  <!-- Panel Admin -->
+  <div class="admin-panel" id="adminPanel" style="display:none;">
+    <h2>Quản trị (Admin)</h2>
+    <input type="text" id="muteUser" placeholder="Tên user cần mute">
+    <select id="muteTime">
       <option value="1">1 giây</option>
       <option value="10">10 giây</option>
       <option value="60">1 phút</option>
@@ -43,12 +40,11 @@
       <option value="604800">1 tuần</option>
       <option value="2592000">1 tháng</option>
       <option value="31536000">1 năm</option>
-      <option value="custom">Tùy chọn</option>
     </select>
-    <input id="customMute" type="number" placeholder="Giây tùy chọn" style="display:none;">
-    <button onclick="muteUser()">Mute</button>
-    <button onclick="unmuteUser()">Unmute</button>
-    <button onclick="closeAdmin()">Đóng</button>
+    <br>
+    <button id="muteBtn">Mute</button>
+    <button id="unmuteBtn">Unmute</button>
+    <button onclick="document.getElementById('adminPanel').style.display='none'">Đóng</button>
   </div>
 
   <script src="/socket.io/socket.io.js"></script>
