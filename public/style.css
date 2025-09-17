@@ -1,8 +1,6 @@
 body {
+  font-family: sans-serif;
   margin: 0;
-  font-family: Arial, sans-serif;
-  background: #fff;
-  color: #333;
   display: flex;
   height: 100vh;
 }
@@ -10,13 +8,16 @@ body {
 /* Sidebar */
 .sidebar {
   width: 200px;
-  background: #f2f2f2;
+  background: #f0f0f0;
   padding: 10px;
-  border-right: 2px solid #ddd;
+  border-right: 1px solid #ccc;
 }
 
-.sidebar h3 {
-  margin-top: 0;
+#voicePanel {
+  margin-top: 10px;
+  padding: 10px;
+  background: #fff;
+  border: 1px solid #ccc;
 }
 
 /* Chat */
@@ -26,8 +27,8 @@ body {
   flex-direction: column;
 }
 
-.chat-header {
-  background: #eee;
+.header {
+  background: #ddd;
   padding: 10px;
   display: flex;
   justify-content: space-between;
@@ -35,48 +36,80 @@ body {
 
 #messages {
   flex: 1;
+  list-style: none;
+  margin: 0;
   padding: 10px;
   overflow-y: auto;
 }
 
-#chat-form {
+form {
   display: flex;
-  border-top: 1px solid #ddd;
+  border-top: 1px solid #ccc;
 }
 
-#msg {
+form input {
   flex: 1;
   padding: 10px;
   border: none;
 }
 
-#chat-form button {
-  padding: 10px 20px;
-  border: none;
-  background: #333;
-  color: white;
-  cursor: pointer;
+form button {
+  padding: 10px;
 }
 
-/* Login page */
-.login-page {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-}
-
-.login-box {
+/* Popup cài đặt */
+.popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   background: #fff;
   padding: 20px;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  text-align: center;
+  border: 2px solid #444;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
 }
 
-.login-box input {
-  display: block;
-  width: 200px;
-  margin: 10px auto;
+/* Ẩn */
+.hidden { display: none; }
+
+/* Rainbow name */
+.rainbow-name {
+  background: linear-gradient(
+    to right,
+    red, orange, yellow, green, cyan, blue, violet
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: rainbowMove 5s linear infinite;
+  background-size: 400% 100%;
+}
+@keyframes rainbowMove {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 100% 50%; }
+}
+
+/* Red name */
+.red-name {
+  color: red;
+  font-weight: bold;
+}
+
+/* Login */
+.login-container {
+  max-width: 300px;
+  margin: 100px auto;
+  padding: 20px;
+  border: 1px solid #ccc;
+  background: #fff;
+}
+
+.login-container input {
+  width: 100%;
   padding: 8px;
+  margin: 5px 0;
+}
+
+.error {
+  color: red;
+  font-size: 14px;
 }
