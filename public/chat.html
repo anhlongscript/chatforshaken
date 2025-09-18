@@ -3,9 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <title>Chat Room</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <!-- Video nền -->
+  <div class="video-background">
+    <iframe 
+      id="bg-video"
+      src="https://www.youtube.com/embed/w4ANXtInE5o?autoplay=1&mute=1&loop=1&playlist=w4ANXtInE5o&controls=0&modestbranding=1&iv_load_policy=3"
+      frameborder="0"
+      allow="autoplay; encrypted-media"
+      allowfullscreen>
+    </iframe>
+  </div>
+
   <div class="chat-box">
     <div id="messages" class="messages"></div>
 
@@ -17,8 +29,16 @@
     </div>
   </div>
 
+  <!-- Modal xem ảnh -->
+  <div id="imageModal" class="modal">
+    <span class="close">&times;</span>
+    <img class="modal-content" id="modalImg">
+  </div>
+
+  <!-- Nút bật/tắt âm nhạc -->
+  <button class="sound-btn" onclick="toggleSound()">🔊 Bật tiếng</button>
+
   <script>
-    // Nếu chưa login -> quay về login
     if (!localStorage.getItem("username")) {
       window.location.href = "login.html";
     }
